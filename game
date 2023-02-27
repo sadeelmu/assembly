@@ -1,0 +1,477 @@
+org 100h
+
+; add your code here    
+          
+.data 
+welcmsg db "Welcome to The Game $" 
+doneby db "Done by Sadeel Muwahed $" 
+thegame db "The Game $"
+gamedone db "The Game is Done $" 
+controlturn db 0 
+won db 0 
+
+;define variables to store the asscii code for each character
+verline db 179    
+horzline db 196                           
+topleft db 218
+topright db 191
+bottomright db 217
+bottomleft db 192 
+chara db 'A'
+charb db 'B'
+  
+
+topline db 218, 196, 196, 196, 196, 196, 191 
+straightline db 179, 32, 32, 32, 32, 32, 179
+straightline1 db 179, 32, 32, 32, 32, 32, 179
+straightline2 db  179, 32, 32, 32, 32, 32, 179
+straightline3 db  179, 32, 32, 32, 32, 32, 179
+straightline4 db  179, 32, 32, 32, 32, 32, 179
+bottomline db 192, 196, 196,196, 196, 196, 217         
+
+;variables of arrays to store 
+row1 db 5 dup(?)
+row2 db 5 dup(?)
+row3 db 5 dup(?)
+row4 db 5 dup(?)
+row5 db 5 dup(?)
+
+.code 
+mov ax, @data
+mov ds, ax
+           
+mov ax, 1
+int 33h
+
+;show messages
+mov dx, offset welcmsg
+mov Ah, 9
+int 21h  
+
+ 
+call enterdisp
+call enterdisp
+
+
+mov dx, offset doneby
+mov Ah, 9
+int 21h       
+
+call enterdisp
+call enterdisp
+
+mov dh, 10
+mov dl, 10
+mov bh, 0
+mov ah, 2
+int 10h
+
+mov dx, offset thegame
+mov Ah, 9
+int 21h
+
+;blinking cursor appears to user 
+mov dh, 10
+mov dl, 30
+mov bh, 0
+mov ah, 2
+int 10h 
+
+mov cx, 7
+above:
+mov ah, 2 
+mov dl, topline[si]    
+inc si
+int 21h 
+loop above  
+mov si, 0  
+
+mov dh, 11
+mov dl, 30
+mov bh, 0
+mov ah, 2
+int 10h 
+ 
+
+mov cx, 7
+leftver:
+mov ah, 2 
+mov dl, straightline[si]    
+inc si
+int 21h 
+loop leftver  
+mov si,0
+
+mov dh, 12
+mov dl, 30
+mov bh, 0
+mov ah, 2
+int 10h   
+
+
+mov cx, 7
+left1:
+mov ah, 2 
+mov dl, straightline1[si]    
+inc si
+int 21h 
+loop left1 
+mov si, 0   
+
+mov dh, 13
+mov dl, 30
+mov bh, 0
+mov ah, 2
+int 10h 
+
+mov cx, 7
+left2:
+mov ah, 2 
+mov dl, straightline2[si]    
+inc si
+int 21h 
+loop left2 
+mov si, 0   
+          
+mov dh, 14
+mov dl, 30
+mov bh, 0
+mov ah, 2
+int 10h 
+
+
+mov cx, 7
+left3:
+mov ah, 2 
+mov dl, straightline3[si]    
+inc si
+int 21h 
+loop left3
+mov si,0 
+
+mov dh, 15
+mov dl, 30
+mov bh, 0
+mov ah, 2
+int 10h 
+
+
+mov cx, 7
+left4:
+mov ah, 2 
+mov dl, straightline4[si]    
+inc si
+int 21h 
+loop left4
+mov si,0 
+
+
+mov dh, 16
+mov dl, 30
+mov bh, 0
+mov ah, 2
+int 10h   
+
+mov cx, 7
+bottom:
+mov ah, 2
+mov dl, bottomline[si]
+inc si
+int 21h
+loop bottom
+mov si, 0
+
+
+mov dh, 11
+mov dl, 31
+mov bh, 0
+mov ah, 2
+int 10h           
+ 
+
+
+
+gobackver:  
+    push ax
+    push dx
+    mov ah, 2
+    sub dl, 1
+    int 10h
+    pop ax
+    pop dx
+    jmp control  
+
+gobackhorz: 
+    mov ah, 2
+    sub dh, 1
+    int 10h
+    jmp control
+
+goforwardver:
+    mov ah, 2
+    add dl, 1
+    int 10h
+    jmp control
+   
+
+goforwardhor:
+    mov ah, 2
+    add dh, 1
+    int 10h
+    jmp control
+
+;controls the bounds of the cursor
+;question 4 of project
+control::
+cmp dl, 36 ;controls if the cursor moves outside the box from the top (36+ out of bounds)
+je gobackver
+
+cmp dh, 15
+jae gobackhorz  ;controls if the cursor moves outside the box from the bottom (16+ out of bounds)                                
+
+cmp dl, 30
+jbe goforwardver  ;controls if the cursor moves outside the box from the left (31+ out of bounds)
+   
+cmp dh, 9
+jbe goforwardver ;controls if the cursor moves outside the box from the right (9+ out of bounds)
+   
+;question 3   
+mov ah, 00h ;gets input from keyboard
+int 16h  
+
+cmp ah, 48h ;input is up key  
+je up
+
+cmp ah, 50h ;input is down key
+je down
+
+cmp ah, 4Dh ;input is right key 
+je right
+
+cmp ah, 4Bh ;input is left key
+je left 
+
+;question 5 
+cmp ah, 1Ch ;input is enter key   ;other method gives error unsupported video mode
+je enter 
+
+;question 3
+up:
+    mov ah, 3  ;gets position of cursor
+    int 10h
+
+    mov ah, 2  ;fixes cursor by moving it up
+    sub dh, 1
+    int 10h
+
+    jmp control
+
+down:
+    mov ah, 3  ;gets position of cursor
+    int 10h
+
+    mov ah, 2  ;fixes cursor by moving it down
+    add dh, 1
+    int 10h
+
+    jmp control
+
+right:
+    mov ah, 3  ;gets position of cursor
+    int 10h
+
+    mov ah, 2  ;fixes cursor by moving it right
+    add dl, 1
+    int 10h
+
+    jmp control
+
+left:
+    mov ah, 2  ;gets current position of left
+    int 10h     
+
+    mov ah, 2  ;fixes cursor by moving it left
+    sub dl, 1
+    int 10h
+                 
+    jmp control 
+
+;question 5 
+;question 6    
+enter:
+;read chatacter at cursor position
+     
+    mov ah, 8h
+    int 10h
+    cmp al,'A'
+    je checkerofbox
+    cmp al, 'B'
+    je checkerofbox
+    push dx
+    mov ah, 2 
+    cmp controlturn, 
+    je PlayerA 
+    cmp won, 1
+    je done
+
+PlayerA::
+    mov dl, 'A'
+    int 21h
+    mov ah, 3h
+    int 10h
+    sub dh, 10
+    sub dl, 38
+    mov bx, 0
+    mov bl, dl
+    mov si, bx
+    cmp dh, 0
+    je storer1a
+    cmp dh, 1
+    je storer2a
+    cmp dh, 2
+    je storer3a
+    cmp dh, 3
+    je storer4a
+    cmp dh, 4
+    je storer5a
+    jmp endplayera
+             
+    storer1a:
+    mov row1[si], al
+    call whowon
+    jmp endplayera
+   
+    storer2a:
+    mov row2[si], al
+    call whowon
+    jmp endplayera
+   
+    storer3a:
+    mov row3[si], al
+    call whowon
+    jmp endplayera
+   
+    storer4a:
+    mov row4[si], al
+    call whowon
+    jmp endplayera
+   
+    storer5a:
+    mov row5[si], al
+    call whowon
+    jmp endplayera
+   
+    endplayera:
+    pop dx
+    add dl, 1
+    int 10h
+    inc turn
+    jmp coontrol
+   
+PlayerB:
+    mov dl, 'B' ; 
+    int 21h
+   
+    mov ah, 3h
+    int 10h
+    sub dh, 10
+    sub dl, 38
+    mov bx, 0
+    mov bl, dl
+    mov si, bx
+    cmp dh, 0
+    je storer1
+    cmp dh, 1
+    je storer2
+    cmp dh, 2
+    je storer3
+    cmp dh, 3
+    je storer4
+    cmp dh, 4
+    je storer5                        
+    jmp endplayerb
+ 
+    storer1:
+    mov row1[si], al
+    call whowon
+    jmp endplayerb
+   
+    storer2:
+    mov row2[si], al
+    call whowon
+    jmp endplayerb
+   
+    storer3:
+    mov row3[si], al
+    call whowon
+    jmp endplayerb
+   
+    store_row4:
+    mov row4[si], al
+    call whowon
+    jmp endplayerb
+   
+    store_row5:
+    mov row5[si], al
+    call whowon
+    jmp endplayerb
+   
+    endplayerb:
+    pop dx
+    add dl, 1
+    int 10h
+    dec turn
+    jmp control
+
+
+
+checkerofbox:
+jmp control
+
+;question 7
+whowon:
+;use chapter 8 to search 
+;not done
+mov si, offset row1
+mov al, [si]
+mov cx, 50
+je done 
+
+
+done:
+mov dx, offset thegame
+mov Ah, 9
+int 21h
+
+ret
+
+enterdisp proc uses ax dx
+;procedure to call when you want to put a line vertically
+mov ah,2 
+mov dl, 0ah
+int 21h
+mov dl, 0dh
+int 21h
+ret
+enterdisp endp
+
+
+spacedisp proc uses ax dx
+;procedure to call when you want to put a line horizontally
+mov ah, 2
+mov dl, ' '
+int 21h 
+ret
+spacedisp endp
+                                                                              
+
+fixpos proc uses cx ax dx
+mov cx, 5
+fixvertical:
+call spacedisp 
+loop fixvertical
+mov ah, 2
+mov dl, verline
+int 21h
+ret
+fixpos endp
