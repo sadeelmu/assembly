@@ -1,4 +1,4 @@
-                                            
+                                                                                              
 
 org 100h
 
@@ -33,34 +33,52 @@ je LL2
 
 
 Solve: 
-mov bl, 0
+
+cmp op,'+'
+je addition  
+cmp op,'-'
+je subtraction
 cmp op,'*'
 je multiplication 
 cmp op, '/'
-je divison
+je divison 
 
+addition:
+mov bl, num1
+add bl,num2
+mov result,bl
+jmp done
+
+subtraction:         
+mov bl, num1
+sub bl,num2
+mov result,bl
+jmp done    
+            
 multiplication: 
-
-mov bl,0 
+cmp result, 255
+jb done   
+mov bl,0     ;zero out accumlator
 mov cl, num1  
 mov ch, 0
-ml1: 
+ML1: 
 add bl,num2
 mov result,bl 
-loop ml1
-jmp done
+loop ML1
+jmp multiplication
  
 
-divison:  
+divison:          
+cmp num2, 0
+jp print
 ;should add a compare to check if its zero 
 mov bl, num1 
-cmp num1, num2
+cmp num1, num2 ;keep dividing (infinte loop) until num2 bigger than num1
 jb done
 sub bl, num2
 inc result
 jmp divison 
-
-
+                     
 
 
 
@@ -85,10 +103,14 @@ get1 proc
     mov ah,1
     int 21h
         
-    cmp al,'*'
+    cmp al,'+'
     je L4 
-    cmp al,'/'
-    je L5
+    cmp al,'-'
+    je L5   
+    cmp al, '*'
+    je L6
+    cmp al, '/'   
+    je L7
     
     sub al,30h
     
@@ -107,13 +129,19 @@ get1 proc
     ret 
     
     L4:
-    mov op,'*'
+    mov op,'+'
     mov F,1
     ret
     L5:
-    mov op,'/'
+    mov op,'-'
     mov F,1
-    ret
+    ret  
+    L6:
+    mov op, '*'
+    mov F, 1
+    L7:
+    mov op, '/'
+    mov F, 1
     L2:
     mov ax,0
        
