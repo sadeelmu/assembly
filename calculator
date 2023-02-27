@@ -9,6 +9,7 @@ num1 db 0
 num2 db 0
 op db 0
 result db 0
+count db 0
 msg db 0dh,0ah,"Error"
 
 
@@ -18,14 +19,14 @@ mov ds,ax
 
 
 LL1:
-call get1 
+call get1        ;we get first number
 cmp ax,0
 je print
-cmp F,0
+cmp F,0     
 je LL1  
 
 LL2:
-call get2 
+call get2      ;we get second number
 cmp ax,0
 je print
 cmp F,1
@@ -49,15 +50,13 @@ add bl,num2
 mov result,bl
 jmp done
 
-subtraction:         
+subtraction:        
 mov bl, num1
 sub bl,num2
 mov result,bl
 jmp done    
             
 multiplication: 
-cmp result, 255
-jb done   
 mov bl,0     ;zero out accumlator
 mov cl, num1  
 mov ch, 0
@@ -65,20 +64,17 @@ ML1:
 add bl,num2
 mov result,bl 
 loop ML1
-jmp multiplication
+jmp done
  
 
 divison:          
-cmp num2, 0
-jp print
-;should add a compare to check if its zero 
-mov bl, num1 
-cmp num1, num2 ;keep dividing (infinte loop) until num2 bigger than num1
+mov al, num2 
+cmp num1, al ;keep dividing (infinte loop) until num2 bigger than num1
 jb done
-sub bl, num2
+sub num1, al
 inc result
-jmp divison 
-                     
+jmp divison   
+          
 
 
 
@@ -138,10 +134,12 @@ get1 proc
     ret  
     L6:
     mov op, '*'
-    mov F, 1
+    mov F, 1  
+    ret
     L7:
     mov op, '/'
-    mov F, 1
+    mov F, 1 
+    ret
     L2:
     mov ax,0
        
@@ -163,7 +161,7 @@ get2 proc
     jb L21
     cmp al,9
     ja L21
-    
+                
     mov cx,10
     mov bh,0
     L31:
