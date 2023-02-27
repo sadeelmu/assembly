@@ -1,0 +1,156 @@
+                                            
+
+org 100h
+
+.data
+
+F db 0
+num1 db 0
+num2 db 0
+op db 0
+result db 0
+msg db 0dh,0ah,"Error"
+
+
+.code
+mov ax,@data
+mov ds,ax
+
+
+LL1:
+call get1 
+cmp ax,0
+je print
+cmp F,0
+je LL1  
+
+LL2:
+call get2 
+cmp ax,0
+je print
+cmp F,1
+je LL2
+
+
+Solve: 
+mov bl, 0
+cmp op,'*'
+je multiplication 
+cmp op, '/'
+je divison
+
+multiplication: 
+
+mov bl,0 
+mov cl, num1  
+mov ch, 0
+ml1: 
+add bl,num2
+mov result,bl 
+loop ml1
+jmp done
+ 
+
+divison:  
+;should add a compare to check if its zero 
+mov bl, num1 
+cmp num1, num2
+jb done
+sub bl, num2
+inc result
+jmp divison 
+
+
+
+
+
+print:
+
+mov cx,7
+mov si,0
+screen:
+mov dl,msg[si]
+mov ah,2
+int 21h
+inc si
+loop screen
+
+
+done:
+ret
+
+
+get1 proc
+     
+    mov ah,1
+    int 21h
+        
+    cmp al,'*'
+    je L4 
+    cmp al,'/'
+    je L5
+    
+    sub al,30h
+    
+    cmp al,0
+    jb L2
+    cmp al,9
+    ja L2
+    
+    mov cx,10
+    mov bh,0
+    L3:
+    add bh,num1
+    loop L3
+    add bh,al
+    mov num1,bh
+    ret 
+    
+    L4:
+    mov op,'*'
+    mov F,1
+    ret
+    L5:
+    mov op,'/'
+    mov F,1
+    ret
+    L2:
+    mov ax,0
+       
+    ret
+    endp
+
+get2 proc
+     
+    mov ah,1
+    int 21h
+        
+    cmp al,'='
+    je L41 
+    
+    
+    sub al,30h
+    
+    cmp al,0
+    jb L21
+    cmp al,9
+    ja L21
+    
+    mov cx,10
+    mov bh,0
+    L31:
+    add bh,num2
+    loop L31
+    add bh,al
+    mov num2,bh
+    ret 
+    
+    L41:
+    mov F,2
+    ret
+    
+    L21:
+    mov ax,0
+       
+    ret
+    endp
